@@ -1,0 +1,13 @@
+Package: charDirection
+Type: Package
+Title: Principal Characteristic Direction
+Version: 0.0.0.9000
+Author: Scott Warchal [aut, cre]
+Maintainer: Scott Warchal <s.warchal@sms.ed.ac.uk>
+Description: Principal characteristic direction from Avi Ma'ayan's Lab.
+Depends:
+    R (>= 3.1.0)
+License: MIT + file LICENSE
+LazyData: true
+RoxygenNote: 5.0.1
+Suggests: testthat
