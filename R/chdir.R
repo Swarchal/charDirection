@@ -29,7 +29,7 @@ chdir <- function(ctrl, expm, samples, r = 1){
     # There should be variance in expression values of each gene. If  
     # gene expression values of a gene are constant, it would dramatically
     # affect the LDA caculation and results in a wrong answer.
-    constantThreshold <- 1e-5;
+    constantThreshold <- 1e-5
     ctrlConstantGenes <- diag(var(t(ctrl))) < constantThreshold
     expmConstantGenes <- diag(var(t(expm))) < constantThreshold
     
@@ -45,7 +45,7 @@ chdir <- function(ctrl, expm, samples, r = 1){
     
     # place control gene expression data and experiment gene expression data into
     # one matrix
-    combinedData <- cbind(ctrl,expm)
+    combinedData <- cbind(ctrl, expm)
     
     # get the number of samples, namely, the total number of replicates in  control 
     # and experiment. 
@@ -55,14 +55,14 @@ chdir <- function(ctrl, expm, samples, r = 1){
     # the chdir in a subspace that capture most variance in order to save computation 
     # workload. The number is set 20 because considering the number of genes usually 
     # present in an expression matrix 20 components would capture most of the variance.
-    componentsCount <- min(c(samplesCount-1,20))
+    componentsCount <- min(c(samplesCount - 1, 20))
     
     
     # use the nipals PCA algorithm to calculate R, V, and pcvars. nipals algorithm
     # has better performance than the algorithm used by R's builtin PCA function.
     # R are scores and V are coefficients or loadings. pcvars are the variances 
     # captured by each component 
-    pcaRes <- nipals(t(combinedData),componentsCount, 1e5)
+    pcaRes <- nipals(t(combinedData), componentsCount, 1e5)
     R <- pcaRes$T # PCA scores
     V <- pcaRes$P # PCA loadings
     pcvars <- pcaRes$pcvar
@@ -71,7 +71,7 @@ chdir <- function(ctrl, expm, samples, r = 1){
     # we only want components that cpature 95% of the total variance or a little above.
     # cutIdx is the index of the compoenent, within which the variance is just equal
     # to or a little greater than 95% of the total.
-    cutIdx <- which(cumsum(pcvars)>0.95)
+    cutIdx <- which(cumsum(pcvars) > 0.95)
     if(length(cutIdx)==0){
     	cutIdx <- componentsCount
     }else{
@@ -83,33 +83,26 @@ chdir <- function(ctrl, expm, samples, r = 1){
     V <- V[,1:cutIdx]
     
     # the difference between experiment mean and control mean.
-    meanvec <- rowMeans(expm) - rowMeans(ctrl)
+    meanvec <- rowMeans(expm) - rowMeans(ctrl) 
     
-    
-    # all the following steps calculate shrunkMats. Refer to the ChrDir paper for detail.
-    # ShrunkenMats are the covariance matrix that is placed as denominator 
-    # in LDA formula. Notice the shrunkMats here is in the subspace of those components
-    # that capture about 95% of total variance.
-    Dd <- t(R) %*% R / samplesCount
-    Dd <- diag(diag(Dd))
-    sigma <- mean(diag(Dd))
-    shrunkMats <- r * Dd + sigma * (1-r) * diag(dim(R)[2])
-    
+    # shruken covariance matrix as denominator for LDA
+    shrunkMats <- shrink_mat(R, samplesCount, r)
+
     # The LDA formula.
     #  V%*%solve(shrunkMats)%*%t(V) transforms the covariance matrix from the subspace to full space.
-    b <- V %*% solve(shrunkMats) %*%t (V) %*% meanvec
+    b <- V %*% solve(shrunkMats) %*% t(V) %*% meanvec
     
     # normlize b to unit vector
-    b <- b*as.vector(sqrt(1 / t(b) %*% b))
+    b <- b * as.vector(sqrt(1 / t(b) %*% b))
     
     # sort b to by its components' absolute value in decreasing order and get the 
     # sort index
-    sortRes <- sort(abs(b),decreasing=TRUE,index.return=TRUE)
+    sortRes <- sort(abs(b), decreasing = TRUE, index.return = TRUE)
     
     # sort b by the sort index
     bSorted <- as.matrix(b[sortRes$ix])
     # sort genes by the sort index
-    samplesSorted <- samples[sortRes$ix] #TODO fix this nonsense, currently genes is a global object calculated beforehand
+    samplesSorted <- samples[sortRes$ix]
     # assign genesSorted as the row names of bSorted
     rownames(bSorted) <- samplesSorted
     

@@ -1,9 +1,7 @@
 Package: charDirection
-Type: Package
 Title: Principal Characteristic Direction
 Version: 0.0.0.9000
-Author: Scott Warchal [aut, cre]
-Maintainer: Scott Warchal <s.warchal@sms.ed.ac.uk>
+Authors@R: person("Scott", "Warchal", email = "S.Warchal@sms.ed.ac.uk", role = c("aut", "cre"))
 Description: Principal characteristic direction from Avi Ma'ayan's Lab.
 Depends:
     R (>= 3.1.0)

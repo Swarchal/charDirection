@@ -2,3 +2,4 @@
 
 export(chdir)
 export(nipals)
+export(shrink_mat)
