@@ -36,11 +36,11 @@ chdir <- function(ctrl, expm, samples, r = 1){
     if (any(ctrlConstantGenes)){
     	errMes <- sprintf('%s row(s) in control expression data are constant. Consider Removing the row(s).',
 		paste(as.character(which(ctrlConstantGenes)),collapse=','))
-    	stop(errMes)
+    	stop(errMes, call. = FALSE)
     }else if(any(expmConstantGenes)){
     	errMes <- sprintf('%s row(s) in experiment expression data are constant. Consider Removing the row(s).',
 		paste(as.character(which(expmConstantGenes)),collapse=','))
-    	stop(errMes)
+    	stop(errMes, call. = FALSE)
     }
     
     # place control gene expression data and experiment gene expression data into
@@ -72,9 +72,9 @@ chdir <- function(ctrl, expm, samples, r = 1){
     # cutIdx is the index of the compoenent, within which the variance is just equal
     # to or a little greater than 95% of the total.
     cutIdx <- which(cumsum(pcvars) > 0.95)
-    if(length(cutIdx)==0){
+    if (length(cutIdx)==0){
     	cutIdx <- componentsCount
-    }else{
+    } else{
     	cutIdx <- cutIdx[1]
     }
     
@@ -105,8 +105,6 @@ chdir <- function(ctrl, expm, samples, r = 1){
     samplesSorted <- samples[sortRes$ix]
     # assign genesSorted as the row names of bSorted
     rownames(bSorted) <- samplesSorted
-    
-    # return bSorted
-    bSorted <- bSorted
+    return(bSorted)
 }
 
