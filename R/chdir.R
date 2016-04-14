@@ -1,10 +1,17 @@
 #' error message for constant variance expression data
 #'
-#' @param ctrlConstantGenes
-#' @param expmConstantGenes
+#' Will stop and return error message if rows have constant variance
 #'
+#' @param ctrl matrix of control data
+#' @param expm matrix of experiment data
+#'
+#' @return error message if constant variance, otherwise silent
 
-check_constant_rows(ctrlConstantGenes, expmConstantGenes){
+check_constant_rows <- function(ctrl, expm){
+     
+    constantThreshold <- 1e-5
+    ctrlConstantGenes <- diag(var(t(ctrl))) < constantThreshold
+    expmConstantGenes <- diag(var(t(expm))) < constantThreshold
 
     if (any(ctrlConstantGenes)){
     	errMes <- sprintf('%s row(s) in control expression data are constant. Consider Removing the row(s).',
@@ -16,7 +23,6 @@ check_constant_rows(ctrlConstantGenes, expmConstantGenes){
     	stop(errMes, call. = FALSE)
     }
 }
-
 
 
 #' Characteristic Direction
@@ -46,15 +52,10 @@ chdir <- function(ctrl, expm, samples, r = 1){
     	stop('Control expression data and experiment expression data have to be real numbers. NA was found!')
     }
     
-    
     # There should be variance in expression values of each gene. If  
     # gene expression values of a gene are constant, it would dramatically
     # affect the LDA caculation and results in a wrong answer.
-    constantThreshold <- 1e-5
-    ctrlConstantGenes <- diag(var(t(ctrl))) < constantThreshold
-    expmConstantGenes <- diag(var(t(expm))) < constantThreshold
-    
-    check_constant_rows(ctrlConstantGenes, expmConstantGenes)
+    check_constant_rows(ctrl, expm)
     
     # place control gene expression data and experiment gene expression data into
     # one matrix
@@ -70,7 +71,6 @@ chdir <- function(ctrl, expm, samples, r = 1){
     # present in an expression matrix 20 components would capture most of the variance.
     componentsCount <- min(c(samplesCount - 1, 20))
     
-    
     # use the nipals PCA algorithm to calculate R, V, and pcvars. nipals algorithm
     # has better performance than the algorithm used by R's builtin PCA function.
     # R are scores and V are coefficients or loadings. pcvars are the variances 
@@ -79,13 +79,12 @@ chdir <- function(ctrl, expm, samples, r = 1){
     R <- pcaRes$T # PCA scores
     V <- pcaRes$P # PCA loadings
     pcvars <- pcaRes$pcvar
-    
-    
-    # we only want components that cpature 95% of the total variance or a little above.
-    # cutIdx is the index of the compoenent, within which the variance is just equal
+     
+    # we only want components that capture 95% of the total variance or a little above.
+    # cutIdx is the index of the component, within which the variance is just equal
     # to or a little greater than 95% of the total.
     cutIdx <- which(cumsum(pcvars) > 0.95)
-    if (length(cutIdx)==0){
+    if (length(cutIdx) == 0){
     	cutIdx <- componentsCount
     } else {
     	cutIdx <- cutIdx[1]
@@ -118,6 +117,7 @@ chdir <- function(ctrl, expm, samples, r = 1){
     samplesSorted <- samples[sortRes$ix]
     # assign genesSorted as the row names of bSorted
     rownames(bSorted) <- samplesSorted
+ 
     return(bSorted)
 }
 
