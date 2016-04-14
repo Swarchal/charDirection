@@ -1,14 +1,22 @@
-#' error message for constant variance expression data
+#' sanity check for datasets
 #'
-#' Will stop and return error message if rows have constant variance
+#' Will stop and return error message if rows have constant variance,
+#' or if they have differing numbers of rows, or contain NA values.
 #'
 #' @param ctrl matrix of control data
 #' @param expm matrix of experiment data
 #'
-#' @return error message if constant variance, otherwise silent
+#' @return error message if error, otherwise silent
 
-check_constant_rows <- function(ctrl, expm){
-     
+check_datasets <- function(ctrl, expm){
+    
+    if (dim(ctrl)[1] != dim(expm)[1]){
+    	stop('Control expression data must have equal number of genes as experiment expression data!')
+    }    
+    if (any(is.na(ctrl)) || any(is.na(expm))){
+    	stop('Control expression data and experiment expression data have to be real numbers. NA was found!')
+    }
+
     constantThreshold <- 1e-5
     ctrlConstantGenes <- diag(var(t(ctrl))) < constantThreshold
     expmConstantGenes <- diag(var(t(expm))) < constantThreshold
@@ -42,20 +50,12 @@ check_constant_rows <- function(ctrl, expm){
 #'	values in descending order.
 #' @export
 
+
 chdir <- function(ctrl, expm, samples, r = 1){
-    
-    if (dim(ctrl)[1] != dim(expm)[1]){
-    	stop('Control expression data must have equal number of genes as experiment expression data!')
-    }
-    
-    if (any(is.na(ctrl)) || any(is.na(expm))){
-    	stop('Control expression data and experiment expression data have to be real numbers. NA was found!')
-    }
-    
-    # There should be variance in expression values of each gene. If  
-    # gene expression values of a gene are constant, it would dramatically
-    # affect the LDA caculation and results in a wrong answer.
-    check_constant_rows(ctrl, expm)
+   
+    # check the datasets for constant variance, differing numbers of rows
+    # or presence of NA values
+    check_datasets(ctrl, expm)
     
     # place control gene expression data and experiment gene expression data into
     # one matrix
