@@ -1,3 +1,24 @@
+#' error message for constant variance expression data
+#'
+#' @param ctrlConstantGenes
+#' @param expmConstantGenes
+#'
+
+check_constant_rows(ctrlConstantGenes, expmConstantGenes){
+
+    if (any(ctrlConstantGenes)){
+    	errMes <- sprintf('%s row(s) in control expression data are constant. Consider Removing the row(s).',
+		paste(as.character(which(ctrlConstantGenes)), collapse=','))
+    	stop(errMes, call. = FALSE)
+    } else if(any(expmConstantGenes)){
+    	errMes <- sprintf('%s row(s) in experiment expression data are constant. Consider Removing the row(s).',
+		paste(as.character(which(expmConstantGenes)), collapse=','))
+    	stop(errMes, call. = FALSE)
+    }
+}
+
+
+
 #' Characteristic Direction
 #'
 #' Calculates the characteristic direction for a phenotypic dataset
@@ -33,15 +54,7 @@ chdir <- function(ctrl, expm, samples, r = 1){
     ctrlConstantGenes <- diag(var(t(ctrl))) < constantThreshold
     expmConstantGenes <- diag(var(t(expm))) < constantThreshold
     
-    if (any(ctrlConstantGenes)){
-    	errMes <- sprintf('%s row(s) in control expression data are constant. Consider Removing the row(s).',
-		paste(as.character(which(ctrlConstantGenes)),collapse=','))
-    	stop(errMes, call. = FALSE)
-    }else if(any(expmConstantGenes)){
-    	errMes <- sprintf('%s row(s) in experiment expression data are constant. Consider Removing the row(s).',
-		paste(as.character(which(expmConstantGenes)),collapse=','))
-    	stop(errMes, call. = FALSE)
-    }
+    check_constant_rows(ctrlConstantGenes, expmConstantGenes)
     
     # place control gene expression data and experiment gene expression data into
     # one matrix
@@ -74,13 +87,13 @@ chdir <- function(ctrl, expm, samples, r = 1){
     cutIdx <- which(cumsum(pcvars) > 0.95)
     if (length(cutIdx)==0){
     	cutIdx <- componentsCount
-    } else{
+    } else {
     	cutIdx <- cutIdx[1]
     }
     
     # slice R and V to only that number of components.
-    R <- R[,1:cutIdx]
-    V <- V[,1:cutIdx]
+    R <- R[, 1:cutIdx]
+    V <- V[, 1:cutIdx]
     
     # the difference between experiment mean and control mean.
     meanvec <- rowMeans(expm) - rowMeans(ctrl) 

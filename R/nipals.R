@@ -1,10 +1,12 @@
 #' Principal component analysis
 #' 
 #' Calculates the principal components accorindg to the algorithm by Wold
-#' @param X matrix
-#' @param a integer, number of components to calculates
-#' @param it integer, number of iterations
-#' @param tolerance float, precision tolerance
+#'
+#' @param X matrix or numeric dataframe.
+#' @param a integer, number of principal components to calculate.
+#' @param it integer, maximum number of iterations if error tolerance is not
+#'	reached.
+#' @param tolerance float, precision tolerance.
 #' 
 #' @return list, T: PCA scores. P: PCA loadings. pcvar: proportion of varation
 #' explained by PCA components
@@ -28,7 +30,7 @@ nipals <- function(X, a, it = 10, tolerance = 1e-4){
     varTotal <- sum(diag(var(Xh)))
     currVar <- varTotal
     precision <- c()
-    for (h in 1:a){
+    for (h in 1:a) {
 	th <- Xh[,1] # starting value for th is 1st column of Xh
 	ende <- FALSE
 	# 3 inner steps of NIPALS algorithm
@@ -48,7 +50,7 @@ nipals <- function(X, a, it = 10, tolerance = 1e-4){
 	    #check convergence of th
 	    if (prec <= (tolerance ^ 2)) {
 		ende <- TRUE
-	    }else if (it <= nr) { #too many iterations
+	    } else if (it <= nr) { #too many iterations
 		ende <- TRUE
 		cat("\nWARNING! Iteration stop in h=",h," without convergence!\n\n")
 		}
@@ -60,7 +62,7 @@ nipals <- function(X, a, it = 10, tolerance = 1e-4){
 	currVar <- sum(diag(var(Xh)))
 	pcvar <- c(pcvar,(oldVar - currVar) / varTotal)
 	nr <- 0
-	}
+    }
     list(T = T, P = P, pcvar = pcvar, precision = precision)
 }
 

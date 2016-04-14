@@ -7,13 +7,14 @@
 nipals(X, a, it = 10, tolerance = 1e-04)
 }
 \arguments{
-\item{X}{matrix}
+\item{X}{matrix or numeric dataframe.}
 
-\item{a}{integer, number of components to calculates}
+\item{a}{integer, number of principal components to calculate.}
 
-\item{it}{integer, number of iterations}
+\item{it}{integer, maximum number of iterations if error tolerance is not
+reached.}
 
-\item{tolerance}{float, precision tolerance}
+\item{tolerance}{float, precision tolerance.}
 }
 \value{
 list, T: PCA scores. P: PCA loadings. pcvar: proportion of varation
